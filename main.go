@@ -1,6 +1,7 @@
 package main
 
 import (
+	"HumptyDumpy01/go-restful-api/db"
 	"HumptyDumpy01/go-restful-api/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,9 @@ import (
 )
 
 func main() {
+	// initialize the database.
+	db.InitDB()
+
 	app := gin.Default()
 	app.GET("/events", getEvents)
 	app.POST("/events", createEvent)
