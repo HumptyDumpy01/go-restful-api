@@ -19,3 +19,7 @@ func (e Event) Save() {
 	// TODO: Add it to the database
 	events = append(events, e)
 }
+
+func GetAllEvents() []Event {
+	return events
+}
