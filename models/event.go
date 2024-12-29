@@ -5,12 +5,12 @@ import (
 )
 
 type Event struct {
-	ID          int
-	Name        string
-	Description string
-	Location    string
+	ID          float64
+	Name        string `binding:"required"`
+	Description string `binding:"required"`
+	Location    string `binding:"required"`
 	DateTime    time.Time
-	UserId      int
+	UserId      float64
 }
 
 var events = []Event{}
