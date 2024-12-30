@@ -77,3 +77,55 @@ func createEvent(context *gin.Context) {
 		"data":   newEvent,
 	})
 }
+
+func deleteEvent(context *gin.Context) {
+	_, err := strconv.ParseInt(context.Param("id"), 10, 64)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{
+			"status": "fail",
+			"data": gin.H{
+				"error": "Failed to parse the id!",
+			},
+		})
+		return
+	}
+	context.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		"data":   gin.H{},
+	})
+}
+
+func updateEvent(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"status": "fail", "data": gin.H{"error": "Failed to parse the float"}})
+		return
+	}
+
+	_, err = models.GetEventById(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "data": gin.H{"error": "Failed to fetch the event!"}})
+		return
+	}
+
+	var updatedEvent models.Event
+	err = context.ShouldBindJSON(&updatedEvent)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"status": "fail", "data": gin.H{"error": "Failed to parse user data."}})
+		return
+	}
+
+	updatedEvent.ID = id
+	err = updatedEvent.Update()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "data": gin.H{"error": "Failed to perform the update."}})
+		return
+	}
+
+	context.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		"data":   gin.H{},
+	})
+}
