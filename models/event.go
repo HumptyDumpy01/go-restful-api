@@ -14,34 +14,57 @@ type Event struct {
 	UserId      float64
 }
 
-var events = []Event{}
-
-func (e Event) Save() (int64, error) {
+func (e Event) Save() error {
 	query := `
 	INSERT INTO events(name, description, location, dateTime, user_id)  
 	VALUES (?, ?, ? ,? ,?)`
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	defer stmt.Close()
 
 	result, err := stmt.Exec(e.Name, e.Description, e.Location, e.DateTime, e.UserId)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return err
 	}
 	e.ID = id
-	return id, nil
-
-	//events = append(events, e)
+	return err
 }
 
-func GetAllEvents() []Event {
-	return events
+func GetAllEvents() ([]Event, error) {
+	query := `
+	SELECT * FROM events`
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var events []Event
+
+	for rows.Next() {
+		var event Event
+		err := rows.Scan(
+			&event.ID,
+			&event.Name,
+			&event.Description,
+			&event.Location,
+			&event.DateTime,
+			&event.UserId,
+		)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+	return events, nil
+
 }

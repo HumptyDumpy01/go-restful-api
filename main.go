@@ -5,9 +5,7 @@ import (
 	"HumptyDumpy01/go-restful-api/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"math/rand"
 	"net/http"
-	"time"
 )
 
 func main() {
@@ -26,9 +24,18 @@ func main() {
 }
 
 func getEvents(context *gin.Context) {
+	data, err := models.GetAllEvents()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"data":   gin.H{"error": "Failed to fetch the events."},
+		})
+		return
+	}
+
 	context.JSON(http.StatusOK, gin.H{
 		"status": "success",
-		"data":   models.GetAllEvents(),
+		"data":   data,
 	})
 }
 
@@ -42,10 +49,15 @@ func createEvent(context *gin.Context) {
 		})
 		return
 	}
-	newEvent.ID = rand.ExpFloat64()
-	newEvent.UserId = rand.ExpFloat64()
-	newEvent.DateTime = time.Now()
-	newEvent.Save()
+
+	err = newEvent.Save()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"data":   gin.H{"error": "Failed to save event."},
+		})
+		return
+	}
 
 	context.JSON(http.StatusOK, gin.H{
 		"status": "success",
