@@ -2,6 +2,7 @@ package models
 
 import (
 	"HumptyDumpy01/go-restful-api/db"
+	"HumptyDumpy01/go-restful-api/utils"
 )
 
 type User struct {
@@ -11,6 +12,12 @@ type User struct {
 }
 
 func (u User) Save() error {
+	hashedPassword, err := utils.HashPassword(u.Password)
+
+	if err != nil {
+		return err
+	}
+
 	query := `
 	INSERT INTO users (email, password) VALUES (?, ?)
 `
@@ -21,7 +28,7 @@ func (u User) Save() error {
 
 	defer stmt.Close()
 
-	result, err := stmt.Exec(u.Email, u.Password)
+	result, err := stmt.Exec(u.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
@@ -31,6 +38,7 @@ func (u User) Save() error {
 		return err
 	}
 	u.ID = id
+	u.Password = hashedPassword
 
 	return err
 }
