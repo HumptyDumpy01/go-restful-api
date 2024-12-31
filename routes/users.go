@@ -53,5 +53,4 @@ func login(context *gin.Context) {
 		"status": "success",
 		"data":   "Authenticated",
 	})
-	return
 }
