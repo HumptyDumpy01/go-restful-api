@@ -2,6 +2,7 @@ package routes
 
 import (
 	"HumptyDumpy01/go-restful-api/models"
+	"HumptyDumpy01/go-restful-api/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -53,29 +54,33 @@ func getEvents(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	newEvent := models.Event{}
-	err := context.ShouldBindJSON(&newEvent)
+	token := context.Request.Header.Get("Authorization")
+
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Not Authorized"}})
+		return
+	}
+
+	err := utils.VerifyToken(token)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data":   gin.H{"error": "Invalid Input"},
-		})
+		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired."}})
+		return
+	}
+
+	newEvent := models.Event{}
+	err = context.ShouldBindJSON(&newEvent)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"status": "error", "data": gin.H{"error": "Invalid Input"}})
 		return
 	}
 
 	err = newEvent.Save()
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"data":   gin.H{"error": "Failed to save event."},
-		})
+		context.JSON(http.StatusInternalServerError, gin.H{"status": "error", "data": gin.H{"error": "Failed to save event."}})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data":   newEvent,
-	})
+	context.JSON(http.StatusOK, gin.H{"status": "success", "data": newEvent})
 }
 
 func updateEvent(context *gin.Context) {
