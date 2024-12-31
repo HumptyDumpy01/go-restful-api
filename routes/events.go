@@ -61,9 +61,17 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
+	// Check if the token starts with "Bearer "
+	if len(token) > 7 && token[:7] == "Bearer " {
+		token = token[7:]
+	} else {
+		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired 1."}})
+		return
+	}
+
 	err := utils.VerifyToken(token)
 	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired."}})
+		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired 2."}})
 		return
 	}
 
