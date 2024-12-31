@@ -16,5 +16,5 @@ func GenerateToken(email string, userId int64) (string, error) {
 	})
 
 	// create a const and gen a secret key by e.g. running "openssl rand -hex 32"
-	return token.SignedString(secretKey)
+	return token.SignedString([]byte(secretKey))
 }
