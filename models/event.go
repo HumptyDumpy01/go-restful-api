@@ -11,10 +11,10 @@ type Event struct {
 	Description string `binding:"required"`
 	Location    string `binding:"required"`
 	DateTime    time.Time
-	UserId      float64
+	UserId      int64
 }
 
-func (e Event) Save() error {
+func (e *Event) Save() error {
 	query := `
 	INSERT INTO events(name, description, location, dateTime, user_id)  
 	VALUES (?, ?, ? ,? ,?)`
@@ -35,7 +35,7 @@ func (e Event) Save() error {
 		return err
 	}
 	e.ID = id
-	return err
+	return nil
 }
 
 func GetAllEvents() ([]Event, error) {

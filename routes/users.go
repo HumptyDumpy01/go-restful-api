@@ -38,14 +38,13 @@ func login(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"status": "error", "data": gin.H{"error": "Failed to bind json!"}})
 		return
 	}
-	err = user.ValidateCredentials()
+	userId, err := user.ValidateCredentials()
 
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Failed to validate credentials"}})
 		return
 	}
-
-	token, err := utils.GenerateToken(user.Email, user.ID)
+	token, err := utils.GenerateToken(user.Email, userId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"status": "error", "data": gin.H{"error": "Failed to generate JWT token"}})
 		return

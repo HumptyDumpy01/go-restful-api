@@ -3,6 +3,7 @@ package routes
 import (
 	"HumptyDumpy01/go-restful-api/models"
 	"HumptyDumpy01/go-restful-api/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -69,7 +70,7 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
-	err := utils.VerifyToken(token)
+	userId, err := utils.VerifyToken(token)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired 2."}})
 		return
@@ -82,7 +83,12 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
+	// Set the UserId to the newEvent
+	newEvent.UserId = userId
+
 	err = newEvent.Save()
+	fmt.Println(`Executing newEvent.UserId`, newEvent.UserId)
+
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"status": "error", "data": gin.H{"error": "Failed to save event."}})
 		return

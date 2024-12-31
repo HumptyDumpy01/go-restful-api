@@ -4,6 +4,7 @@ import (
 	"HumptyDumpy01/go-restful-api/db"
 	"HumptyDumpy01/go-restful-api/utils"
 	"errors"
+	"fmt"
 )
 
 type User struct {
@@ -35,6 +36,7 @@ func (u User) Save() error {
 	}
 
 	id, err := result.LastInsertId()
+	fmt.Println(`Printing id`, id)
 	if err != nil {
 		return err
 	}
@@ -44,21 +46,21 @@ func (u User) Save() error {
 	return err
 }
 
-func (u User) ValidateCredentials() error {
+func (u *User) ValidateCredentials() (int64, error) {
 	query := `
-SELECT id, password FROM users WHERE email = ?
-`
+	SELECT id, password FROM users WHERE email = ?
+	`
 	row := db.DB.QueryRow(query, u.Email)
 	var retrievedPassword string
 	err := row.Scan(&u.ID, &retrievedPassword)
 
 	if err != nil {
-		return errors.New("invalid email or password")
+		return 0, errors.New("invalid email or password")
 	}
 	passwordIsValid := utils.CheckPasswordHash(u.Password, retrievedPassword)
 
 	if !passwordIsValid {
-		return errors.New("invalid email or password")
+		return 0, errors.New("invalid email or password")
 	}
-	return nil
+	return u.ID, nil
 }
