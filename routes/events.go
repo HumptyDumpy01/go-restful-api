@@ -2,7 +2,6 @@ package routes
 
 import (
 	"HumptyDumpy01/go-restful-api/models"
-	"HumptyDumpy01/go-restful-api/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -55,29 +54,11 @@ func getEvents(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Not Authorized"}})
-		return
-	}
-
-	// Check if the token starts with "Bearer "
-	if len(token) > 7 && token[:7] == "Bearer " {
-		token = token[7:]
-	} else {
-		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired 1."}})
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"status": "error", "data": gin.H{"error": "Malformed token or expired 2."}})
-		return
-	}
+	// this prop is available because of Authenticate middleware
+	userId := context.GetInt64("userId")
 
 	newEvent := models.Event{}
-	err = context.ShouldBindJSON(&newEvent)
+	err := context.ShouldBindJSON(&newEvent)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"status": "error", "data": gin.H{"error": "Invalid Input"}})
 		return
