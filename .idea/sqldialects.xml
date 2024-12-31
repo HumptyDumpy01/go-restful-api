@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/db/db.go" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/models/event.go" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/models/user.go" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/routes/users.go" dialect="GenericSQL" />
   </component>
 </project>
